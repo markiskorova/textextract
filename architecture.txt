@@ -1,0 +1,11 @@
+[ User ]
+   ↓
+[ React Frontend ] ──> [ Django API ]
+                          ↓
+        [ PostgreSQL ]   [ File Parser ]
+                          ↓
+               [ OpenAI Summarizer Service ]
+                          ↓
+        [ Summarized + Raw Text Stored in DB ]
+                          ↓
+                  [ Response to Frontend ]

@@ -1,0 +1,9 @@
+text-extract-summarize/
+│
+├── backend/               # Django project
+│
+├── frontend/              # React project (optional now)
+│
+├── docker-compose.yml     # Docker orchestration
+├── .env                   # Environment variables
+└── README.md
