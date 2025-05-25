@@ -1,36 +1,26 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Submission
 from decouple import config
-from openai import OpenAI
-import os
+import openai
 
-
-# Load your API key from the environment
-client = OpenAI(api_key=config("OPENAI_API_KEY"))
+openai.api_key = config("OPENAI_API_KEY")
 
 class SummarizeView(APIView):
     def post(self, request):
-        user_input = request.data.get("text")
-        if not user_input:
-            return Response({"error": "No input text provided."}, status=status.HTTP_400_BAD_REQUEST)
+        text = request.data.get("text", "")
+        if not text:
+            return Response({"error": "Missing 'text' field"}, status=400)
 
         try:
-            # Call OpenAI Chat Completion API
-            chat_response = client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "user", "content": f"Summarize this:\n\n{user_input}"}
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": text}
                 ]
             )
-
-            summary = chat_response.choices[0].message.content
-
-            # Save to DB
-            Submission.objects.create(user_input=user_input, summary=summary)
-
-            return Response({"summary": summary}, status=status.HTTP_200_OK)
-
+            summary = response.choices[0].message.content.strip()
+            return Response({"summary": summary})
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e)}, status=500)
